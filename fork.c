@@ -5,10 +5,16 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <fcntl.h>
+#include <math.h>
 
 void err(){
   printf("errno %d\n",errno);
   printf("%s\n",strerror(errno));
+  exit(1);
+}
+
+void perr(){
+  perror("fork fail");
   exit(1);
 }
 
@@ -25,8 +31,27 @@ int rand(){
 }
 
 int main(){
-  int p = fork();
-  int rando = rand();
-  printf("PID: %d, MY NUM: %d\n",p, rando);
+  int myID = getpid();
+  printf("%d about to create 2 child processes\n", myID);
+  pid_t p = fork();
+  if (p != 0){
+    p = fork();
+  }
+  if (p < 0) perr();
+  if (p != 0) {
+    int status;
+    wait(&status);
+    printf("Main Process %d is done. Child %d slept for %dsec\n", myID, p, -1);
+    exit(0);
+  }
+  if (p == 0) {
+    int pid = getpid();
+    int rando = abs(rand()) % 5 + 1;
+    printf("PID: %d %dsec\n",pid, rando);
+    sleep(rando);
+    int ppid = getppid();
+    printf("\n%d finished after %dsec\n",pid, rando);
+    exit(0);
+  }
   return 0;
 }
