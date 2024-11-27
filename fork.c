@@ -38,20 +38,27 @@ int main(){
     p = fork();
   }
   if (p < 0) perr();
+
   if (p != 0) {
     int status;
-    wait(&status);
-    printf("Main Process %d is done. Child %d slept for %dsec\n", myID, p, -1);
+    waitpid(p, &status, 0);
     exit(0);
   }
+
   if (p == 0) {
     int pid = getpid();
     int rando = abs(rand()) % 5 + 1;
     printf("PID: %d %dsec\n",pid, rando);
     sleep(rando);
     int ppid = getppid();
-    printf("\n%d finished after %dsec\n",pid, rando);
+    if (ppid != 1) {
+      printf("\nMain Process %d is done. Child %d slept for %dsec\n", ppid, pid, rando);
+    }
+    else {
+      printf("\n%d finished after %dsec\n",pid, rando);
+    }
     exit(0);
   }
+  
   return 0;
 }
