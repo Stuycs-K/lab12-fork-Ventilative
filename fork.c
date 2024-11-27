@@ -41,7 +41,7 @@ int main(){
 
   if (p != 0) {
     int status;
-    waitpid(p, &status, 0);
+    wait(&status);
     exit(0);
   }
 
@@ -59,6 +59,6 @@ int main(){
     }
     exit(0);
   }
-  
+
   return 0;
 }
